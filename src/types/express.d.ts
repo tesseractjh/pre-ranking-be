@@ -6,8 +6,7 @@ declare namespace Express {
       email: string;
     };
     signup: {
-      userId: string;
-      email?: string;
+      userId: number;
     };
   }
 }

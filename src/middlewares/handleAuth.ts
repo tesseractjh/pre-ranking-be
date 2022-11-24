@@ -29,18 +29,18 @@ const handleAuth: RequestHandler = async (req, res) => {
       res.redirect(DOMAIN);
     } else {
       // Oauth로 가입을 시도한 적이 있으나, 닉네임과 이메일 입력 등 가입 절차를 완료하지 않은 경우 -> userId와 임시 이메일을 쿠키로 전달
-      const token = AuthController.createSignupToken(user.user_id, email);
+      const token = AuthController.createSignupToken(user.user_id);
       res.clearCookie('auth');
       res.cookie('signup', token, cookieOption.SIGNUP);
-      res.redirect(`${DOMAIN}/join/form`);
+      res.redirect(`${DOMAIN}/signup${email ? `?email=${email}` : ''}`);
     }
   } else {
     // 최초 Oauth 로그인 -> DB에 임시 닉네임으로 유저 정보 생성 -> userId와 임시 이메일을 쿠키로 전달
-    const userId = await UserController.create(id, provider, email);
-    const token = AuthController.createSignupToken(Number(userId), email);
+    const userId = await UserController.create(id, provider);
+    const token = AuthController.createSignupToken(Number(userId));
     res.clearCookie('auth');
     res.cookie('signup', token, cookieOption.SIGNUP);
-    res.redirect(`${DOMAIN}/join/form`);
+    res.redirect(`${DOMAIN}/signup${email ? `?email=${email}` : ''}`);
   }
 };
 

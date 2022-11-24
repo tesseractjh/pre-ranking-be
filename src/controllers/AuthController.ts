@@ -21,8 +21,8 @@ const AuthController = {
     });
   },
 
-  createSignupToken(userId: number, email?: string) {
-    return jwt.sign({ userId, email }, JWT_SECRET, {
+  createSignupToken(userId: number) {
+    return jwt.sign({ userId }, JWT_SECRET, {
       expiresIn: '30m',
       issuer: 'preRanking',
       algorithm: 'HS256'
