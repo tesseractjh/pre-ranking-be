@@ -23,8 +23,4 @@ router.get(
   handleAuth
 );
 
-router.post('/logout', async (req, res) => {
-  res.clearCookie('auth');
-});
-
 export default router;

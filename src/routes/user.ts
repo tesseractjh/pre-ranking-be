@@ -15,7 +15,7 @@ const router = Router();
 
 router.get('/login', async (req, res) => {
   const { auth } = req.signedCookies;
-  const token = jwt.verify(auth, JWT_SECRET, jwtOption.SIGNUP_VERIFY);
+  const token = jwt.verify(auth, JWT_SECRET, jwtOption.AUTH_VERIFY);
   if (!token || typeof token === 'string' || 'payload' in token) {
     res.clearCookie('auth');
     res.redirect(DOMAIN);
@@ -25,13 +25,36 @@ router.get('/login', async (req, res) => {
   const accessToken = AuthController.createAccessToken(userId);
   const refreshToken = AuthController.createRefreshToken(userId);
   res.cookie('auth', refreshToken, cookieOption.REFRESH_TOKEN);
-  res.json({ accessToken });
+  res.send(accessToken);
+});
+
+router.post('/logout', async (req, res) => {
+  res.clearCookie('auth');
+});
+
+router.get('/user_name', async (req, res) => {
+  const { value } = req.query;
+  if (typeof value !== 'string') {
+    throw new CustomError(400, '올바르지 않은 쿼리 파라미터');
+  }
+  const user = await UserController.findByUserName(value);
+  res.send(!user);
+});
+
+router.get('/email', async (req, res) => {
+  const { value } = req.query;
+  if (typeof value !== 'string') {
+    throw new CustomError(400, '올바르지 않은 쿼리 파라미터');
+  }
+  const user = await UserController.findByEmail(value);
+  res.send(!user);
 });
 
 router.patch('/signup', verifySignupToken, async (req, res) => {
-  const { signup } = req;
-  const userId = Number(signup.userId);
-  const { user_name: userName, email } = req.body;
+  const {
+    signup: { userId }
+  } = req;
+  const { userName, email } = req.body;
 
   if (!userName || !email) {
     throw new CustomError(400, '닉네임 또는 이메일을 입력해주세요!');
@@ -55,6 +78,7 @@ router.patch('/signup', verifySignupToken, async (req, res) => {
 
   res.clearCookie('signup');
   res.cookie('auth', refreshToken, cookieOption.REFRESH_TOKEN);
+  res.send(true);
 });
 
 export default router;

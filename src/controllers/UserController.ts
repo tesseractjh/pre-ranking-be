@@ -16,6 +16,30 @@ const UserController = {
     return user?.[0] || null;
   },
 
+  async findByUserName(userName: string) {
+    const user = await DB.query<Model.User[]>(
+      `
+        SELECT *
+        FROM user
+        WHERE user_name = ?;
+      `,
+      [userName]
+    );
+    return user?.[0] || null;
+  },
+
+  async findByEmail(email: string) {
+    const user = await DB.query<Model.User[]>(
+      `
+        SELECT *
+        FROM user
+        WHERE email = ?;
+      `,
+      [email]
+    );
+    return user?.[0] || null;
+  },
+
   async findByOAuth(authId: string, authProvider: string) {
     const user = await DB.query<Model.User[]>(
       `
@@ -28,13 +52,13 @@ const UserController = {
     return user?.[0] || null;
   },
 
-  async create(authId: string, authProvider: string, email: string) {
+  async create(authId: string, authProvider: string) {
     const result = await DB.query(
       `
-        INSERT INTO user (auth_id, auth_provider, email)
-        VALUES (?, ?, ?);
+        INSERT INTO user (auth_id, auth_provider)
+        VALUES (?, ?);
       `,
-      [authId, authProvider, email]
+      [authId, authProvider]
     );
 
     return result?.insertId;
