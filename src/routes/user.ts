@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import { Router } from 'express';
 import jwt from 'jsonwebtoken';
 import { CustomError } from '@middlewares/handleError';
-import verifySignupToken from '@middlewares/verifySignupToken';
+import handleSignupToken from '@middlewares/handleSignupToken';
 import UserController from '@controllers/UserController';
 import AuthController from '@controllers/AuthController';
 import cookieOption from '@config/cookie';
@@ -50,7 +50,7 @@ router.get('/email', async (req, res) => {
   res.send(!user);
 });
 
-router.patch('/signup', verifySignupToken, async (req, res) => {
+router.patch('/signup', handleSignupToken, async (req, res) => {
   const {
     signup: { userId }
   } = req;
