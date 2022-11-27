@@ -1,35 +1,58 @@
-import dotenv from 'dotenv';
 import { Router } from 'express';
-import jwt from 'jsonwebtoken';
+import cookieOption from '@config/cookie';
 import { CustomError } from '@middlewares/handleError';
 import handleSignupToken from '@middlewares/handleSignupToken';
+import handleRefreshToken from '@middlewares/handleRefreshToken';
 import UserController from '@controllers/UserController';
 import AuthController from '@controllers/AuthController';
-import cookieOption from '@config/cookie';
-import jwtOption from '@config/jwt';
-
-dotenv.config();
-const { JWT_SECRET, DOMAIN } = process.env;
+import updateRefreshToken from '@utils/updateRefreshToken';
+import updateJson from '@utils/updateJson';
 
 const router = Router();
 
-router.get('/login', async (req, res) => {
-  const { auth } = req.signedCookies;
-  const token = jwt.verify(auth, JWT_SECRET, jwtOption.AUTH_VERIFY);
-  if (!token || typeof token === 'string' || 'payload' in token) {
+router.get('/login', handleRefreshToken, async (req, res) => {
+  const { refreshToken } = req;
+
+  // refresh token이 없는 경우
+  if (!refreshToken) {
     res.clearCookie('auth');
-    res.redirect(DOMAIN);
-    return;
+    return res.end();
   }
-  const { userId } = token;
+
+  const { token, userId } = refreshToken;
+  const user = await UserController.findById(userId);
+
+  // token 내용물이 없거나 해당 user가 존재하지 않을 경우
+  if (!token || !user) {
+    res.clearCookie('auth');
+    return res.end();
+  }
+
+  const { refresh_token: prevRefreshToken } = user;
+
+  // DB의 refresh token과 일치하지 않는 경우
+  if (prevRefreshToken !== token) {
+    res.clearCookie('auth');
+    return res.end();
+  }
+
   const accessToken = AuthController.createAccessToken(userId);
-  const refreshToken = AuthController.createRefreshToken(userId);
-  res.cookie('auth', refreshToken, cookieOption.REFRESH_TOKEN);
-  res.send(accessToken);
+  const newRefreshToken = await updateRefreshToken(userId);
+
+  // refresh token 발급 과정에서 에러가 발생한 경우
+  if (!newRefreshToken) {
+    res.clearCookie('auth');
+    return res.end();
+  }
+
+  res.cookie('auth', newRefreshToken, cookieOption.REFRESH_TOKEN);
+  updateJson(req, { accessToken });
+  res.json(req.json);
 });
 
 router.post('/logout', async (req, res) => {
   res.clearCookie('auth');
+  // DB에서 refresh token 삭제
 });
 
 router.get('/user_name', async (req, res) => {
@@ -38,7 +61,8 @@ router.get('/user_name', async (req, res) => {
     throw new CustomError(400, '올바르지 않은 쿼리 파라미터');
   }
   const user = await UserController.findByUserName(value);
-  res.send(!user);
+  updateJson(req, { hasDuplicate: !user });
+  res.json(req.json);
 });
 
 router.get('/email', async (req, res) => {
@@ -47,7 +71,8 @@ router.get('/email', async (req, res) => {
     throw new CustomError(400, '올바르지 않은 쿼리 파라미터');
   }
   const user = await UserController.findByEmail(value);
-  res.send(!user);
+  updateJson(req, { hasDuplicate: !user });
+  res.json(req.json);
 });
 
 router.patch('/signup', handleSignupToken, async (req, res) => {
@@ -78,7 +103,7 @@ router.patch('/signup', handleSignupToken, async (req, res) => {
 
   res.clearCookie('signup');
   res.cookie('auth', refreshToken, cookieOption.REFRESH_TOKEN);
-  res.send(true);
+  res.end();
 });
 
 export default router;

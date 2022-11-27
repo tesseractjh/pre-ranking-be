@@ -15,4 +15,20 @@ const verifyToken =
     }
   };
 
+export const verifyTokenWithoutError = (
+  token: string,
+  secret: jwt.Secret,
+  options: jwt.VerifyOptions
+) => {
+  try {
+    const payload = jwt.verify(token, secret, options);
+    if (typeof payload === 'string' || 'payload' in payload) {
+      return null;
+    }
+    return payload;
+  } catch {
+    return null;
+  }
+};
+
 export default verifyToken;

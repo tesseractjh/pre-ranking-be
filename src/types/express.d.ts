@@ -8,5 +8,15 @@ declare namespace Express {
     signup: {
       userId: number;
     };
+    accessToken: {
+      token: string;
+      userId: number;
+    };
+    refreshToken: {
+      token: string;
+      userId: number;
+    };
+    ignoreRefreshToken: boolean;
+    json: { [key: string]: unknown; accessToken?: string };
   }
 }
