@@ -14,7 +14,6 @@ export class CustomError extends Error {
     message: string,
     options?: {
       redirect?: string;
-      clearAccessToken?: boolean;
       clearRefreshToken?: boolean;
     }
   ) {
@@ -28,15 +27,14 @@ const handleError: ErrorRequestHandler = (error, req, res, next) => {
   console.log(error);
   if (error instanceof CustomError) {
     const { status, message, options } = error;
-    const { redirect, clearAccessToken, clearRefreshToken } = options ?? {};
+    const { redirect, clearRefreshToken } = options ?? {};
     if (clearRefreshToken) {
       res.clearCookie('auth');
     }
     res.status(status).json({
       error: {
         message,
-        redirect,
-        clearAccessToken
+        redirect
       }
     });
   } else {

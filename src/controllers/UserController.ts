@@ -1,7 +1,4 @@
 import DB from '@config/database';
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 const UserController = {
   async findById(userId: number) {
@@ -55,8 +52,8 @@ const UserController = {
   async create(authId: string, authProvider: string) {
     const result = await DB.query(
       `
-        INSERT INTO user (auth_id, auth_provider)
-        VALUES (?, ?);
+        INSERT INTO user (auth_id, auth_provider, created_at)
+        VALUES (?, ?, NOW());
       `,
       [authId, authProvider]
     );
