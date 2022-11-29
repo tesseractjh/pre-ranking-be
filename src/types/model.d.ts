@@ -8,4 +8,13 @@ declare namespace Model {
     refresh_token: string;
     created_time: Date;
   }
+
+  interface Notification {
+    notification_id: number;
+    user_id: number;
+    predict_id: number;
+    notification_text: string;
+    notification_link: string;
+    created_at: Date;
+  }
 }
