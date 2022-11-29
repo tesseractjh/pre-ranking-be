@@ -21,6 +21,7 @@ const handleAccessToken: RequestHandler = async (req, res, next) => {
   }
 
   req.accessToken = { token, userId: result.userId };
+  req.userId = result.userId;
   req.ignoreRefreshToken = true;
   next();
 };

@@ -21,6 +21,7 @@ const handleRefreshToken: RequestHandler = async (req, res, next) => {
 
   if (result) {
     req.refreshToken = { token: auth, userId: result.userId };
+    req.userId = result.userId;
   }
 
   next();
