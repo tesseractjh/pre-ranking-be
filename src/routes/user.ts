@@ -10,7 +10,7 @@ import updateJson from '@utils/updateJson';
 
 const router = Router();
 
-router.get('/login', handleRefreshToken, async (req, res) => {
+router.get('/signin', handleRefreshToken, async (req, res) => {
   const { refreshToken } = req;
 
   // refresh token이 없는 경우
@@ -50,9 +50,15 @@ router.get('/login', handleRefreshToken, async (req, res) => {
   res.json(req.json);
 });
 
-router.post('/logout', async (req, res) => {
+router.post('/signout', handleRefreshToken, async (req, res) => {
+  const { refreshToken } = req;
+  if (refreshToken?.userId) {
+    await UserController.updateById(refreshToken.userId, {
+      refresh_token: ''
+    });
+  }
   res.clearCookie('auth');
-  // DB에서 refresh token 삭제
+  res.end();
 });
 
 router.get('/user_name', async (req, res) => {

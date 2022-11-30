@@ -62,7 +62,9 @@ const UserController = {
   },
 
   async updateById(userId: number, column: Partial<Model.User>) {
-    const columnEntries = Object.entries(column).filter(([, value]) => value);
+    const columnEntries = Object.entries(column).filter(
+      ([, value]) => value !== undefined && value !== null
+    );
 
     await DB.query(
       `
