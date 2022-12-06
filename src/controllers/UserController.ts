@@ -13,6 +13,18 @@ const UserController = {
     return user?.[0] || null;
   },
 
+  async findUserNameAndCoinById(userId: number) {
+    const user = await DB.query<Model.User[]>(
+      `
+        SELECT user_name, coin
+        FROM user
+        WHERE user_id = ?;
+      `,
+      [userId]
+    );
+    return user?.[0] || null;
+  },
+
   async findByUserName(userName: string) {
     const user = await DB.query<Model.User[]>(
       `

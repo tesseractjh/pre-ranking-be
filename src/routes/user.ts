@@ -7,6 +7,7 @@ import UserController from '@controllers/UserController';
 import AuthController from '@controllers/AuthController';
 import updateRefreshToken from '@utils/updateRefreshToken';
 import updateJson from '@utils/updateJson';
+import tokenHandlers from '@middlewares/tokenHandlers';
 
 const router = Router();
 
@@ -110,6 +111,13 @@ router.patch('/signup', handleSignupToken, async (req, res) => {
   res.clearCookie('signup');
   res.cookie('auth', refreshToken, cookieOption.REFRESH_TOKEN);
   res.end();
+});
+
+router.get('/', ...tokenHandlers, async (req, res) => {
+  const { userId } = req;
+  const user = await UserController.findUserNameAndCoinById(userId);
+  updateJson(req, { user });
+  res.json(req.json);
 });
 
 export default router;
