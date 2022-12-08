@@ -17,6 +17,7 @@ declare namespace Express {
       userId: number;
     };
     ignoreRefreshToken: boolean;
+    preventRedirect: boolean;
     json: { [key: string]: unknown; accessToken?: string };
     userId: number;
   }

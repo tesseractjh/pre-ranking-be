@@ -32,4 +32,9 @@ const handleIssueToken: RequestHandler = async (req, res, next) => {
 
 const tokenHandlers = [handleAccessToken, handleRefreshToken, handleIssueToken];
 
+export const preventRedirect: RequestHandler = async (req, res, next) => {
+  req.preventRedirect = true;
+  next();
+};
+
 export default tokenHandlers;
