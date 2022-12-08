@@ -8,6 +8,7 @@ import '@config/passport';
 import handleError from '@middlewares/handleError';
 import validateReferer from '@middlewares/validateReferer';
 import routes from '@routes/index';
+import './schedules';
 
 dotenv.config();
 const { PORT = 4000, DOMAIN, JWT_SECRET } = process.env;

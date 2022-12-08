@@ -22,6 +22,7 @@
       "@config/*": ["src/config/*"],
       "@controllers/*": ["src/controllers/*"],
       "@middlewares/*": ["src/middlewares/*"],
+      "@schedules/*": ["src/schedules/*"],
       "@routes/*": ["src/routes/*"],
       "@utils/*": ["src/utils/*"]
     }

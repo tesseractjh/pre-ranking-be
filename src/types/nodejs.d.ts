@@ -13,5 +13,7 @@ declare namespace NodeJS {
     KAKAO_AUTH_CALLBACK: string;
     JWT_SECRET: string;
     DOMAIN: string;
+    STOCK_API_URL: string;
+    STOCK_API_SECRET: string;
   }
 }
