@@ -20,9 +20,10 @@ router.get('/', ...tokenHandlers, async (req, res) => {
 
 router.delete('/:id', ...tokenHandlers, async (req, res) => {
   const {
+    userId,
     params: { id }
   } = req;
-  await NotificationController.deleteNotification(Number(id));
+  await NotificationController.deleteNotification(userId, Number(id));
   updateJson(req, { isSuccess: true });
   res.json(req.json);
 });

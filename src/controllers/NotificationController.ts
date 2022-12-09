@@ -15,13 +15,13 @@ const NotificationController = {
     return notifications;
   },
 
-  async deleteNotification(notificationId: number) {
+  async deleteNotification(userId: number, notificationId: number) {
     await DB.query(
       `
         DELETE FROM notification
-        WHERE notification_id = ?;
+        WHERE user_id = ? AND notification_id = ?;
       `,
-      [notificationId]
+      [userId, notificationId]
     );
   },
 
