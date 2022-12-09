@@ -8,7 +8,7 @@ import handleRefreshToken from './handleRefreshToken';
 import { CustomError } from './handleError';
 
 const handleIssueToken: RequestHandler = async (req, res, next) => {
-  const { accessToken, refreshToken } = req;
+  const { accessToken, refreshToken, preventRedirect } = req;
   if (accessToken) {
     return next();
   }
@@ -21,6 +21,10 @@ const handleIssueToken: RequestHandler = async (req, res, next) => {
     updateJson(req, { accessToken: newAccessToken });
     res.cookie('auth', newRefreshToken, cookieOption.REFRESH_TOKEN);
     req.accessToken = {} as Request['accessToken'];
+    return next();
+  }
+
+  if (preventRedirect) {
     return next();
   }
 
