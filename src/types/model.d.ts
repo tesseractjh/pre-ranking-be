@@ -5,6 +5,7 @@ declare namespace Model {
     auth_provider: string;
     email: string;
     user_name: string;
+    coin: number;
     refresh_token: string;
     created_time: Date;
   }
@@ -23,6 +24,14 @@ declare namespace Model {
     prediction_info_id: number;
     result_value: string;
     result_date: Date;
+    created_at: Date;
+  }
+
+  interface UserPrediction {
+    user_id: number;
+    prediction_id: number;
+    prediction_value: string;
+    is_confirmed: number;
     created_at: Date;
   }
 

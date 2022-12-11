@@ -1,4 +1,10 @@
 declare namespace Express {
+  interface Body {
+    category: string;
+    predictionId: number;
+    predictionValue: string;
+  }
+
   interface Request {
     user: {
       id: string;
