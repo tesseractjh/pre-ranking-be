@@ -29,9 +29,13 @@ const stockDate = {
 
   getLastDate() {
     const today = new Date();
-    const { hour } = this.getDateInfo(today);
+    const { day, hour } = this.getDateInfo(today);
 
-    if (hour < 12) {
+    if (day === 0) {
+      today.setTime(today.getTime() - 2 * DAY);
+    } else if (day === 6) {
+      today.setTime(today.getTime() - DAY);
+    } else if (hour < 12) {
       today.setTime(today.getTime() - DAY);
     }
 
@@ -73,6 +77,12 @@ const stockDate = {
     }
 
     return `${this.formatDateWithHyphen(lastDate)} 12:00:00`;
+  },
+
+  getDateDiff(prevDate: Date | string, curDate: Date | string) {
+    const prevDateObj = new Date(prevDate);
+    const curDateObj = new Date(curDate);
+    return Math.ceil((curDateObj.getTime() - prevDateObj.getTime()) / DAY) - 1;
   }
 };
 
