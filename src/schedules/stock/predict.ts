@@ -21,7 +21,7 @@ const PARAMS_HIGH_TRANSACTION_PRICE = {
 };
 
 export const createStockFluctuationInfo = scheduleJob(
-  { minute: 59, second: 50 },
+  '50 59 12-23,0-8 * * *',
   async () => {
     try {
       const lastDate = stockDate.getLastDate();

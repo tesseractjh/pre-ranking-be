@@ -14,6 +14,7 @@ export type StockAPIRequestParams = {
   numOfRows: number;
   resultType: string;
   basDt: string;
+  isinCd: string;
   beginMrktTotAmt: number;
   endMrktTotAmt: number;
   beginTrPrc: number;
