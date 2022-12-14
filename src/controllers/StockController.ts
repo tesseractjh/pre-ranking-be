@@ -59,6 +59,44 @@ const StockController = {
     );
 
     return result?.insertId;
+  },
+
+  async confirmStockFluctuation({
+    predictionId,
+    infoId,
+    stockName,
+    coinReward,
+    scoreReward,
+    scorePanelty,
+    resultValue,
+    resultPrice
+  }: {
+    predictionId: number;
+    infoId: number;
+    stockName: string;
+    scoreReward: number;
+    scorePanelty: number;
+    coinReward: number;
+    resultValue: string;
+    resultPrice: number;
+  }) {
+    const result = await DB.query(
+      `
+        CALL confirm_stock_fluctuation_result(?, ?, ?, ?, ?, ?, ?, ?);
+      `,
+      [
+        predictionId,
+        infoId,
+        stockName,
+        coinReward,
+        scoreReward,
+        scorePanelty,
+        resultValue,
+        resultPrice
+      ]
+    );
+
+    return result;
   }
 };
 

@@ -5,6 +5,7 @@ declare namespace Model {
     auth_provider: string;
     email: string;
     user_name: string;
+    exp: number;
     coin: number;
     refresh_token: string;
     created_time: Date;
@@ -13,6 +14,7 @@ declare namespace Model {
   interface Notification {
     notification_id: number;
     user_id: number;
+    notification_title: string;
     notification_text: string;
     notification_link: string;
     created_at: Date;
@@ -31,7 +33,7 @@ declare namespace Model {
     user_id: number;
     prediction_id: number;
     prediction_value: string;
-    is_confirmed: number;
+    prediction_result: number;
     created_at: Date;
   }
 

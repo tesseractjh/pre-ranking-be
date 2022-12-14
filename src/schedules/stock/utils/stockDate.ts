@@ -35,6 +35,8 @@ const stockDate = {
       today.setTime(today.getTime() - 2 * DAY);
     } else if (day === 6) {
       today.setTime(today.getTime() - DAY);
+    } else if (day === 1 && hour < 12) {
+      today.setTime(today.getTime() - 3 * DAY);
     } else if (hour < 12) {
       today.setTime(today.getTime() - DAY);
     }

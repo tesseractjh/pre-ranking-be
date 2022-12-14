@@ -115,7 +115,7 @@ router.patch('/signup', handleSignupToken, async (req, res) => {
 
 router.get('/', ...tokenHandlers, async (req, res) => {
   const { userId } = req;
-  const user = await UserController.findUserNameAndCoinById(userId);
+  const user = await UserController.findUserInfoById(userId);
   updateJson(req, { user });
   res.json(req.json);
 });

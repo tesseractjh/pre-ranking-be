@@ -194,6 +194,22 @@ const PredictionController = {
     );
 
     return result;
+  },
+
+  async findPredictionsWithResult<T>(category: string) {
+    const predictions = await DB.query<(Model.Prediction & T)[]>(
+      `
+        SELECT P.*, stock_name, last_date, last_price, code
+        FROM prediction P
+        JOIN ?? I
+        ON P.prediction_info_id = I.info_id
+        WHERE result_value IS NULL AND TIMEDIFF(now(), result_date) >= '24:00:00'
+        LIMIT 10;
+      `,
+      [category]
+    );
+
+    return predictions;
   }
 };
 
