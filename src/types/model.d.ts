@@ -5,6 +5,7 @@ declare namespace Model {
     auth_provider: string;
     email: string;
     user_name: string;
+    exp: number;
     coin: number;
     refresh_token: string;
     created_time: Date;
