@@ -1,7 +1,7 @@
 import PredictionController from '@controllers/PredictionController';
 import StockController from '@controllers/StockController';
 import { scheduleJob } from 'node-schedule';
-import { SCORES } from './constants';
+import { REWARDS } from './constants';
 import stockDate from './utils/stockDate';
 
 export const confirmStockFluctuationResult = scheduleJob(
@@ -48,9 +48,11 @@ export const confirmStockFluctuationResult = scheduleJob(
             predictionId,
             infoId,
             stockName,
-            coinReward: stockDate.getDateDiff(lastDate, resultDate),
-            scoreReward: SCORES.stock_fluctuation[0],
-            scorePanelty: SCORES.stock_fluctuation[1],
+            coinReward:
+              stockDate.getDateDiff(lastDate, resultDate) *
+              REWARDS.stock_fluctuation.coin,
+            scoreReward: REWARDS.stock_fluctuation.reward,
+            scorePanelty: REWARDS.stock_fluctuation.penalty,
             resultValue:
               Number(res.response?.body?.items?.item[0]?.clpr) < lastPrice
                 ? '1'

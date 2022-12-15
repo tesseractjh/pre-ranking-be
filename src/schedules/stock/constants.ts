@@ -19,6 +19,10 @@ export const NEXT_DATE_RATIO = [
   0, 0, 0, 30, 40, 80, 20, 10, 5, 5, 5, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1
 ];
 
-export const SCORES = {
-  stock_fluctuation: [5, -1]
+export const REWARDS = {
+  stock_fluctuation: {
+    coin: 10,
+    reward: 5,
+    penalty: -1
+  }
 };
