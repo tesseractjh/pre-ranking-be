@@ -11,6 +11,18 @@ declare namespace Model {
     created_time: Date;
   }
 
+  interface Rank {
+    user_id: number;
+    score: number;
+    ranking: number;
+    total_count: number;
+  }
+
+  interface PredictionCount {
+    total_count: number;
+    right_count: number;
+  }
+
   interface Notification {
     notification_id: number;
     user_id: number;

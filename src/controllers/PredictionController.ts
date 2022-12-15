@@ -210,6 +210,46 @@ const PredictionController = {
     );
 
     return predictions;
+  },
+
+  async findPredictionTotalCount(userId: number) {
+    const count = await DB.query<Model.PredictionCount[]>(
+      `
+        SELECT
+          COUNT(*) AS total_count,
+          COUNT(
+            CASE WHEN prediction_result = 1
+            THEN 1
+            END
+          ) AS right_count
+        FROM user_prediction
+        WHERE user_id = ? AND prediction_result IS NOT NULL;
+      `,
+      [userId]
+    );
+
+    return count?.[0] || null;
+  },
+
+  async findPredictionCount(userId: number, category: string) {
+    const count = await DB.query<Model.PredictionCount[]>(
+      `
+      SELECT
+        COUNT(*) AS total_count,
+        COUNT(
+          CASE WHEN prediction_result = 1
+          THEN 1
+          END
+        ) AS right_count
+      FROM user_prediction U
+      JOIN prediction P
+      ON U.prediction_id = P.prediction_id
+      WHERE user_id = ? AND prediction_category = ? AND prediction_result IS NOT NULL;
+    `,
+      [userId, category]
+    );
+
+    return count?.[0] || null;
   }
 };
 

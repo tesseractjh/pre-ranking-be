@@ -112,4 +112,18 @@ router.post(
   }
 );
 
+router.get('/count', ...tokenHandlers, async (req, res) => {
+  const {
+    userId,
+    query: { category }
+  } = req;
+
+  const count = category
+    ? await PredictionController.findPredictionCount(userId, `info_${category}`)
+    : await PredictionController.findPredictionTotalCount(userId);
+
+  updateJson(req, { count });
+  res.json(req.json);
+});
+
 export default router;
