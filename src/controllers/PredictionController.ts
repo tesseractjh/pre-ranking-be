@@ -175,6 +175,113 @@ const PredictionController = {
     return userPrediction?.[0] || null;
   },
 
+  async findAllUserPredictions(userId: number, page: number) {
+    const predictions = await DB.query<
+      (Model.UserPrediction & Model.Prediction)[]
+    >(
+      `
+        SELECT *
+        FROM (
+          SELECT
+            U.user_id,
+            U.prediction_id,
+            SUBSTRING(prediction_category, 6) AS category,
+            prediction_value,
+            prediction_result,
+            result_date,
+            ISF.*,
+            score,
+            coin
+          FROM user_prediction U
+          JOIN (
+            SELECT *
+            FROM prediction
+            WHERE prediction_category = 'info_stock_fluctuation'
+          ) P
+          ON U.prediction_id = P.prediction_id
+          JOIN info_stock_fluctuation ISF
+          ON P.prediction_info_id = ISF.info_id
+          LEFT JOIN user_stock_fluctuation USF
+          ON U.user_id = USF.user_id AND ISF.info_id = USF.info_id
+          UNION ALL
+          SELECT
+            U.user_id,
+            U.prediction_id,
+            SUBSTRING(prediction_category, 6) AS category,
+            prediction_value,
+            prediction_result,
+            result_date,
+            ISP.*,
+            score,
+            coin
+          FROM user_prediction U
+          JOIN (
+            SELECT *
+            FROM prediction
+            WHERE prediction_category = 'info_stock_price'
+          ) P
+          ON U.prediction_id = P.prediction_id
+          JOIN info_stock_price ISP
+          ON P.prediction_info_id = ISP.info_id
+          LEFT JOIN user_stock_price USP
+          ON U.user_id = USP.user_id AND ISP.info_id = USP.info_id
+        ) A
+        WHERE user_id = ?
+        ORDER BY prediction_id DESC
+        LIMIT ?, 20
+      `,
+      [userId, (page - 1) * 20]
+    );
+
+    return predictions;
+  },
+
+  async findUserPredictionByCategory(
+    userId: number,
+    page: number,
+    category: string
+  ) {
+    const predictions = await DB.query<
+      (Model.UserPrediction & Model.Prediction)[]
+    >(
+      `
+        SELECT
+          U.user_id,
+          U.prediction_id,
+          SUBSTRING(prediction_category, 6) AS category,
+          prediction_value,
+          prediction_result,
+          result_date,
+          I.*,
+          score,
+          coin
+        FROM user_prediction U
+        JOIN (
+          SELECT *
+          FROM prediction
+          WHERE prediction_category = ?
+        ) P
+        ON U.prediction_id = P.prediction_id
+        JOIN ?? I
+        ON P.prediction_info_id = I.info_id
+        LEFT JOIN ?? S
+        ON U.user_id = S.user_id AND I.info_id = S.info_id
+        WHERE U.user_id = ?
+        ORDER BY U.prediction_id DESC
+        LIMIT ?, 20
+      `,
+      [
+        `info_${category}`,
+        `info_${category}`,
+        `user_${category}`,
+        userId,
+        (page - 1) * 20
+      ]
+    );
+
+    return predictions;
+  },
+
   async createUserPrediction(
     userId: number,
     predictionId: number,
@@ -234,18 +341,18 @@ const PredictionController = {
   async findPredictionCount(userId: number, category: string) {
     const count = await DB.query<Model.PredictionCount[]>(
       `
-      SELECT
-        COUNT(*) AS total_count,
-        COUNT(
-          CASE WHEN prediction_result = 1
-          THEN 1
-          END
-        ) AS right_count
-      FROM user_prediction U
-      JOIN prediction P
-      ON U.prediction_id = P.prediction_id
-      WHERE user_id = ? AND prediction_category = ? AND prediction_result IS NOT NULL;
-    `,
+        SELECT
+          COUNT(*) AS total_count,
+          COUNT(
+            CASE WHEN prediction_result = 1
+            THEN 1
+            END
+          ) AS right_count
+        FROM user_prediction U
+        JOIN prediction P
+        ON U.prediction_id = P.prediction_id
+        WHERE user_id = ? AND prediction_category = ? AND prediction_result IS NOT NULL;
+      `,
       [userId, category]
     );
 

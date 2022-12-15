@@ -118,11 +118,34 @@ router.get('/count', ...tokenHandlers, async (req, res) => {
     query: { category }
   } = req;
 
-  const count = category
-    ? await PredictionController.findPredictionCount(userId, `info_${category}`)
-    : await PredictionController.findPredictionTotalCount(userId);
+  const count =
+    category === 'all'
+      ? await PredictionController.findPredictionTotalCount(userId)
+      : await PredictionController.findPredictionCount(
+          userId,
+          `info_${category}`
+        );
 
   updateJson(req, { count });
+  res.json(req.json);
+});
+
+router.get('/record', ...tokenHandlers, async (req, res) => {
+  const {
+    userId,
+    query: { category, page }
+  } = req;
+
+  const predictions =
+    category === 'all'
+      ? await PredictionController.findAllUserPredictions(userId, Number(page))
+      : await PredictionController.findUserPredictionByCategory(
+          userId,
+          Number(page),
+          String(category)
+        );
+
+  updateJson(req, { predictions });
   res.json(req.json);
 });
 
