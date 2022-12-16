@@ -115,15 +115,19 @@ router.post(
 router.get('/count', ...tokenHandlers, async (req, res) => {
   const {
     userId,
-    query: { category }
+    query: { category, containAll }
   } = req;
 
   const count =
     category === 'all'
-      ? await PredictionController.findPredictionTotalCount(userId)
+      ? await PredictionController.findPredictionTotalCount(
+          userId,
+          containAll === 'true'
+        )
       : await PredictionController.findPredictionCount(
           userId,
-          `info_${category}`
+          `info_${category}`,
+          containAll === 'true'
         );
 
   updateJson(req, { count });

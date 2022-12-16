@@ -319,7 +319,7 @@ const PredictionController = {
     return predictions;
   },
 
-  async findPredictionTotalCount(userId: number) {
+  async findPredictionTotalCount(userId: number, containAll?: boolean) {
     const count = await DB.query<Model.PredictionCount[]>(
       `
         SELECT
@@ -330,7 +330,9 @@ const PredictionController = {
             END
           ) AS right_count
         FROM user_prediction
-        WHERE user_id = ? AND prediction_result IS NOT NULL;
+        WHERE user_id = ? ${
+          containAll ? '' : 'AND prediction_result IS NOT NULL'
+        };
       `,
       [userId]
     );
@@ -338,7 +340,11 @@ const PredictionController = {
     return count?.[0] || null;
   },
 
-  async findPredictionCount(userId: number, category: string) {
+  async findPredictionCount(
+    userId: number,
+    category: string,
+    containAll?: boolean
+  ) {
     const count = await DB.query<Model.PredictionCount[]>(
       `
         SELECT
@@ -351,7 +357,9 @@ const PredictionController = {
         FROM user_prediction U
         JOIN prediction P
         ON U.prediction_id = P.prediction_id
-        WHERE user_id = ? AND prediction_category = ? AND prediction_result IS NOT NULL;
+        WHERE user_id = ? AND prediction_category = ? ${
+          containAll ? '' : 'AND prediction_result IS NOT NULL'
+        };
       `,
       [userId, category]
     );
