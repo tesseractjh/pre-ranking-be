@@ -11,9 +11,10 @@ router.get('/', ...tokenHandlers, async (req, res) => {
     query: { category }
   } = req;
 
-  const rank = category
-    ? await RankController.findScoreRank(userId, `user_${category}`)
-    : await RankController.findTotalScoreRank(userId);
+  const rank =
+    category === 'all'
+      ? await RankController.findTotalScoreRank(userId)
+      : await RankController.findScoreRank(userId, `user_${category}`);
   updateJson(req, { rank });
   res.json(req.json);
 });
