@@ -21,7 +21,7 @@ export const NEXT_DATE_RATIO = [
 
 export const REWARDS = {
   stock_fluctuation: {
-    coin: 10,
+    coin: 12,
     reward: 5,
     penalty: -1
   }
