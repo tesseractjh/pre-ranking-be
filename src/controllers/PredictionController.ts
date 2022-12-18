@@ -185,6 +185,7 @@ const PredictionController = {
           SELECT
             U.user_id,
             U.prediction_id,
+            U.created_at AS user_prediction_created_at,
             SUBSTRING(prediction_category, 6) AS category,
             prediction_value,
             prediction_result,
@@ -207,6 +208,7 @@ const PredictionController = {
           SELECT
             U.user_id,
             U.prediction_id,
+            U.created_at AS user_prediction_created_at,
             SUBSTRING(prediction_category, 6) AS category,
             prediction_value,
             prediction_result,
@@ -227,7 +229,7 @@ const PredictionController = {
           ON U.user_id = USP.user_id AND ISP.info_id = USP.info_id
         ) A
         WHERE user_id = ?
-        ORDER BY prediction_id DESC
+        ORDER BY user_prediction_created_at DESC
         LIMIT ?, 20
       `,
       [userId, (page - 1) * 20]
@@ -267,7 +269,7 @@ const PredictionController = {
         LEFT JOIN ?? S
         ON U.user_id = S.user_id AND I.info_id = S.info_id
         WHERE U.user_id = ?
-        ORDER BY U.prediction_id DESC
+        ORDER BY U.created_at DESC
         LIMIT ?, 20
       `,
       [
