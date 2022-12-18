@@ -1,0 +1,31 @@
+{
+  "presets": [
+    [
+      "@babel/env",
+      {
+        "targets": {
+          "node": "current"
+        }
+      }
+    ],
+    "@babel/typescript"
+  ],
+  "plugins": [
+    [
+      "module-resolver",
+      {
+        "extensions": [".ts"],
+        "root": ["."],
+        "alias": {
+          "@config": "./src/config",
+          "@controllers": "./src/controllers",
+          "@middlewares": "./src/middlewares",
+          "@schedules": "./src/schedules",
+          "@routes": "./src/routes",
+          "@utils": "./src/utils"
+        }
+      }
+    ]
+  ],
+  "comments": false
+}
