@@ -1,9 +1,17 @@
+import type { CookieOptions } from 'express';
+
+const DEFAULT: CookieOptions = {
+  httpOnly: true,
+  signed: true,
+  secure: true,
+  sameSite: 'none'
+};
+
 const cookieOption = {
-  SIGNUP: { httpOnly: true, signed: true },
+  DEFAULT,
   REFRESH_TOKEN: {
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-    httpOnly: true,
-    signed: true
+    ...DEFAULT,
+    maxAge: 7 * 24 * 60 * 60 * 1000
   }
 };
 

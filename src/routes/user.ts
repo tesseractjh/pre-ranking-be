@@ -16,7 +16,7 @@ router.get('/signin', handleRefreshToken, async (req, res) => {
 
   // refresh token이 없는 경우
   if (!refreshToken) {
-    res.clearCookie('auth');
+    res.clearCookie('auth', cookieOption.DEFAULT);
     return res.end();
   }
 
@@ -25,7 +25,7 @@ router.get('/signin', handleRefreshToken, async (req, res) => {
 
   // token 내용물이 없거나 해당 user가 존재하지 않을 경우
   if (!token || !user) {
-    res.clearCookie('auth');
+    res.clearCookie('auth', cookieOption.DEFAULT);
     return res.end();
   }
 
@@ -33,7 +33,7 @@ router.get('/signin', handleRefreshToken, async (req, res) => {
 
   // DB의 refresh token과 일치하지 않는 경우
   if (prevRefreshToken !== token) {
-    res.clearCookie('auth');
+    res.clearCookie('auth', cookieOption.DEFAULT);
     return res.end();
   }
 
@@ -42,7 +42,7 @@ router.get('/signin', handleRefreshToken, async (req, res) => {
 
   // refresh token 발급 과정에서 에러가 발생한 경우
   if (!newRefreshToken) {
-    res.clearCookie('auth');
+    res.clearCookie('auth', cookieOption.DEFAULT);
     return res.end();
   }
 
@@ -58,7 +58,7 @@ router.post('/signout', handleRefreshToken, async (req, res) => {
       refresh_token: ''
     });
   }
-  res.clearCookie('auth');
+  res.clearCookie('auth', cookieOption.DEFAULT);
   res.end();
 });
 
@@ -108,7 +108,7 @@ router.patch('/signup', handleSignupToken, async (req, res) => {
     refresh_token: refreshToken
   });
 
-  res.clearCookie('signup');
+  res.clearCookie('signup', cookieOption.DEFAULT);
   res.cookie('auth', refreshToken, cookieOption.REFRESH_TOKEN);
   res.end();
 });

@@ -1,4 +1,5 @@
 import type { ErrorRequestHandler } from 'express';
+import cookieOption from '@config/cookie';
 
 export class CustomError extends Error {
   status: number;
@@ -29,7 +30,7 @@ const handleError: ErrorRequestHandler = (error, req, res, next) => {
     const { status, message, options } = error;
     const { redirect, clearRefreshToken } = options ?? {};
     if (clearRefreshToken) {
-      res.clearCookie('auth');
+      res.clearCookie('auth', cookieOption.DEFAULT);
     }
     res.status(status).json({
       error: {
