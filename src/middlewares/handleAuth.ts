@@ -1,8 +1,9 @@
 import dotenv from 'dotenv';
 import { RequestHandler } from 'express';
+import { nanoid } from 'nanoid';
 import cookieOption from '@config/cookie';
-import AuthController from '@controllers/AuthController';
 import UserController from '@controllers/UserController';
+import queryString from '@utils/queryString';
 import { CustomError } from './handleError';
 
 dotenv.config();
@@ -17,31 +18,25 @@ const handleAuth: RequestHandler = async (req, res) => {
 
   const user = await UserController.findByOAuth(id, provider);
 
-  if (user) {
-    // 이미 가입된 회원 -> 로그인 성공 -> refresh 토큰 발급
-    if (user.user_name) {
-      const refreshToken = AuthController.createRefreshToken(user.user_id);
-      await UserController.updateById(user.user_id, {
-        refresh_token: refreshToken
-      });
-      res.clearCookie('signup', cookieOption.DEFAULT);
-      res.cookie('auth', refreshToken, cookieOption.REFRESH_TOKEN);
-      res.redirect(DOMAIN);
-    } else {
-      // Oauth로 가입을 시도한 적이 있으나, 닉네임과 이메일 입력 등 가입 절차를 완료하지 않은 경우 -> userId와 임시 이메일을 쿠키로 전달
-      const token = AuthController.createSignupToken(user.user_id);
-      res.clearCookie('auth', cookieOption.DEFAULT);
-      res.cookie('signup', token, cookieOption.DEFAULT);
-      res.redirect(`${DOMAIN}/signup${email ? `?email=${email}` : ''}`);
-    }
-  } else {
-    // 최초 Oauth 로그인 -> DB에 임시 닉네임으로 유저 정보 생성 -> userId와 임시 이메일을 쿠키로 전달
-    const userId = await UserController.create(id, provider);
-    const token = AuthController.createSignupToken(Number(userId));
-    res.clearCookie('auth', cookieOption.DEFAULT);
-    res.cookie('signup', token, cookieOption.DEFAULT);
-    res.redirect(`${DOMAIN}/signup${email ? `?email=${email}` : ''}`);
+  // 이미 가입된 회원 -> 로그인 성공 -> refresh 토큰 발급
+  if (user?.user_name) {
+    const signinToken = nanoid();
+    await UserController.updateById(user.user_id, {
+      signin_token: signinToken
+    });
+    return res.redirect(
+      `${DOMAIN}/login/redirect${queryString({ token: signinToken })}`
+    );
   }
+
+  // 회원 생성
+  if (!user) {
+    await UserController.create(id, provider);
+  }
+
+  // 회원가입 페이지로 리디렉트
+  res.clearCookie('auth', cookieOption.DEFAULT);
+  res.redirect(`${DOMAIN}/signup${queryString({ id, provider, email })}`);
 };
 
 export default handleAuth;

@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import cookieOption from '@config/cookie';
 import { CustomError } from '@middlewares/handleError';
-import handleSignupToken from '@middlewares/handleSignupToken';
 import handleRefreshToken from '@middlewares/handleRefreshToken';
 import UserController from '@controllers/UserController';
 import AuthController from '@controllers/AuthController';
@@ -51,6 +50,29 @@ router.get('/signin', handleRefreshToken, async (req, res) => {
   res.json(req.json);
 });
 
+router.post('/signin/redirect', async (req, res) => {
+  const {
+    body: { token }
+  } = req;
+
+  const user = await UserController.findBySigninToken(String(token));
+
+  if (!user) {
+    throw new CustomError(400, '잘못된 요청입니다!');
+  }
+
+  const { user_id: userId } = user;
+  const refreshToken = AuthController.createRefreshToken(userId);
+  await UserController.updateById(userId, {
+    signin_token: '',
+    refresh_token: refreshToken
+  });
+
+  res.cookie('auth', refreshToken, cookieOption.REFRESH_TOKEN);
+  updateJson(req, { isSuccess: true });
+  res.json(req.json);
+});
+
 router.post('/signout', handleRefreshToken, async (req, res) => {
   const { refreshToken } = req;
   if (refreshToken?.userId) {
@@ -82,17 +104,18 @@ router.get('/email', async (req, res) => {
   res.json(req.json);
 });
 
-router.patch('/signup', handleSignupToken, async (req, res) => {
-  const {
-    signup: { userId }
-  } = req;
-  const { userName, email } = req.body;
+router.patch('/signup', async (req, res) => {
+  const { userName, id, provider, email } = req.body;
 
   if (!userName || !email) {
     throw new CustomError(400, '닉네임 또는 이메일을 입력해주세요!');
   }
 
-  const user = await UserController.findById(userId);
+  if (!id || !provider) {
+    throw new CustomError(400, '올바르지 않은 가입 요청입니다!');
+  }
+
+  const user = await UserController.findByAuthInfo(id, provider);
 
   if (!user) {
     throw new CustomError(404, '임시 회원 정보가 존재하지 않음', {
@@ -100,15 +123,14 @@ router.patch('/signup', handleSignupToken, async (req, res) => {
     });
   }
 
-  const refreshToken = AuthController.createRefreshToken(userId);
+  const refreshToken = AuthController.createRefreshToken(user.user_id);
 
-  await UserController.updateById(userId, {
+  await UserController.updateById(user.user_id, {
     user_name: userName,
     email,
     refresh_token: refreshToken
   });
 
-  res.clearCookie('signup', cookieOption.DEFAULT);
   res.cookie('auth', refreshToken, cookieOption.REFRESH_TOKEN);
   res.end();
 });

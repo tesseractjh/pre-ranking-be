@@ -19,14 +19,6 @@ const AuthController = {
       issuer: 'preRanking',
       algorithm: 'HS256'
     });
-  },
-
-  createSignupToken(userId: number) {
-    return jwt.sign({ userId }, JWT_SECRET, {
-      expiresIn: '30m',
-      issuer: 'preRanking',
-      algorithm: 'HS256'
-    });
   }
 };
 

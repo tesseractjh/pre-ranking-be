@@ -8,6 +8,7 @@ declare namespace Model {
     exp: number;
     coin: number;
     refresh_token: string;
+    signin_token: string;
     created_time: Date;
   }
 

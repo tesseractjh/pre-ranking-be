@@ -37,6 +37,30 @@ const UserController = {
     return user?.[0] || null;
   },
 
+  async findByAuthInfo(id: number, provider: string) {
+    const user = await DB.query<Model.User[]>(
+      `
+        SELECT *
+        FROM user
+        WHERE auth_id = ? AND auth_provider = ?;
+      `,
+      [id, provider]
+    );
+    return user?.[0] || null;
+  },
+
+  async findBySigninToken(token: string) {
+    const user = await DB.query<Model.User[]>(
+      `
+        SELECT *
+        FROM user
+        WHERE signin_token = ?;
+      `,
+      [token]
+    );
+    return user?.[0] || null;
+  },
+
   async findByEmail(email: string) {
     const user = await DB.query<Model.User[]>(
       `
