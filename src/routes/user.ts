@@ -68,7 +68,7 @@ router.get('/user_name', async (req, res) => {
     throw new CustomError(400, '올바르지 않은 쿼리 파라미터');
   }
   const user = await UserController.findByUserName(value);
-  updateJson(req, { hasDuplicate: !user });
+  updateJson(req, { hasDuplicate: !!user });
   res.json(req.json);
 });
 
@@ -78,7 +78,7 @@ router.get('/email', async (req, res) => {
     throw new CustomError(400, '올바르지 않은 쿼리 파라미터');
   }
   const user = await UserController.findByEmail(value);
-  updateJson(req, { hasDuplicate: !user });
+  updateJson(req, { hasDuplicate: !!user });
   res.json(req.json);
 });
 
