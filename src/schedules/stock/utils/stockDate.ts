@@ -60,25 +60,34 @@ const stockDate = {
   },
 
   getRandomNextDate(lastDate: Date) {
+    const date = new Date(lastDate);
+    const day = lastDate.getDay();
     const diff = random.getRandomNumberFromRatio(NEXT_DATE_RATIO);
-    lastDate.setTime(lastDate.getTime() + diff * DAY);
+
+    if (diff <= 5 && day === 4) {
+      date.setTime(lastDate.getTime() + 5 * DAY);
+    } else if (diff <= 4 && day === 5) {
+      date.setTime(lastDate.getTime() + 4 * DAY);
+    } else {
+      date.setTime(lastDate.getTime() + diff * DAY);
+    }
 
     let i = 0;
     while (i < 100) {
       i += 1;
-      lastDate.setTime(lastDate.getTime() + DAY);
-      const { day } = this.getDateInfo(lastDate);
+      date.setTime(date.getTime() + DAY);
+      const { day } = this.getDateInfo(date);
 
       if (
         day > 0 &&
         day < 6 &&
-        !CLOSED_DAYS.includes(this.formatDateWithHyphen(lastDate))
+        !CLOSED_DAYS.includes(this.formatDateWithHyphen(date))
       ) {
         break;
       }
     }
 
-    return `${this.formatDateWithHyphen(lastDate)} 12:00:00`;
+    return `${this.formatDateWithHyphen(date)} 12:00:00`;
   },
 
   getDateDiff(prevDate: Date | string, curDate: Date | string) {
