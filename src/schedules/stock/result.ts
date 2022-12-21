@@ -1,11 +1,14 @@
+import dotenv from 'dotenv';
 import PredictionController from '@controllers/PredictionController';
 import StockController from '@controllers/StockController';
 import { scheduleJob } from 'node-schedule';
 import { REWARDS } from './constants';
 import stockDate from './utils/stockDate';
 
+dotenv.config();
+
 export const confirmStockFluctuationResult = scheduleJob(
-  '0 0/10 * * * 1-5',
+  process.env.RESULT_RULE_STOCK_FLUCTUATION,
   async () => {
     try {
       const predictions = await PredictionController.findPredictionsWithResult<

@@ -1,9 +1,11 @@
+import dotenv from 'dotenv';
 import PredictionController from '@controllers/PredictionController';
 import StockController from '@controllers/StockController';
 import { scheduleJob } from 'node-schedule';
 import random from './utils/random';
 import stockDate from './utils/stockDate';
 
+dotenv.config();
 const MINIMUM_MARKET_CAPITALIZATION = 500_000_000_000;
 const MINIMUM_TRANSACTION_PRICE = 1_000_000_000;
 
@@ -21,7 +23,7 @@ const PARAMS_HIGH_TRANSACTION_PRICE = {
 };
 
 export const createStockFluctuationInfo = scheduleJob(
-  '50 59 12-23,0-8 * * *',
+  process.env.PREDICT_RULE_STOCK_FLUCTUATION,
   async () => {
     try {
       const lastDate = stockDate.getLastDate();
