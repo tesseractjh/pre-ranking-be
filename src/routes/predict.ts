@@ -48,6 +48,26 @@ router.get('/', preventRedirect, ...tokenHandlers, async (req, res) => {
   res.json(req.json);
 });
 
+router.get(
+  '/detail/:id',
+  preventRedirect,
+  ...tokenHandlers,
+  async (req, res) => {
+    const {
+      userId,
+      params: { id }
+    } = req;
+
+    const prediction = await PredictionController.findPredictionInfoById(
+      Number(id),
+      userId
+    );
+
+    updateJson(req, { prediction });
+    res.json(req.json);
+  }
+);
+
 router.post(
   '/',
   ...tokenHandlers,

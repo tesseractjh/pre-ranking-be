@@ -2,7 +2,7 @@ import DB from '@config/database';
 
 const MAX_INT_VALUE = 4294967295;
 
-const findUnSubmitted = (sql: string, unsubmitted: boolean) =>
+const findUnsubmitted = (sql: string, unsubmitted: boolean) =>
   unsubmitted
     ? `
   SELECT *
@@ -16,7 +16,7 @@ const findUnSubmitted = (sql: string, unsubmitted: boolean) =>
   WHERE
     prediction_value IS NULL
     AND prediction_id < ?
-    AND TIMEDIFF(NOW(), created_at) < '24:00:00'
+    AND TIMESTAMPDIFF(HOUR, created_at, NOW()) < 24
   LIMIT 10;
 `
     : sql;
@@ -39,6 +39,71 @@ const PredictionController = {
     return prediction?.[0] || null;
   },
 
+  async findPredictionInfoById(predictionId: number, userId: number) {
+    const result = await DB.query<Model.Prediction[]>(
+      `
+        SELECT prediction_category
+        FROM prediction
+        WHERE prediction_id = ?;
+      `,
+      [predictionId]
+    );
+
+    const category = result?.[0]?.prediction_category;
+
+    const prediction = await DB.query<
+      (Model.Prediction & {
+        prediction_created_at: Date;
+        participant_count: number;
+        prediction_value: string;
+        user_prediction_data: {
+          prediction_value: string;
+          count: number;
+        }[];
+      })[]
+    >(
+      `
+        SELECT
+          prediction_id,
+          prediction_category,
+          result_value,
+          result_date,
+          P.created_at AS prediction_created_at,
+          I.*,
+          (
+            SELECT COUNT(*)
+            FROM user_prediction U
+            WHERE U.prediction_id = P.prediction_id
+          ) AS participant_count,
+          (
+            SELECT prediction_value
+            FROM user_prediction U
+            WHERE U.user_id = ? AND U.prediction_id = P.prediction_id
+          ) AS prediction_value,
+          IF (
+            TIMESTAMPDIFF(HOUR, P.created_at, NOW()) < 24,
+            NULL,
+            (
+              SELECT JSON_ARRAYAGG(data)
+              FROM (
+                SELECT JSON_OBJECT('prediction_value', prediction_value, 'count', COUNT(*)) AS data
+                FROM user_prediction
+                WHERE prediction_id = ?
+                GROUP BY prediction_value
+              ) O
+            )
+          ) AS user_prediction_data
+        FROM prediction P
+        JOIN ?? I
+        ON P.prediction_info_id = I.info_id
+        WHERE prediction_id = ?;
+    `,
+      [userId, predictionId, category, predictionId]
+    );
+
+    return prediction?.[0] || null;
+  },
+
   async findPredictions(
     predictionId: number,
     userId: number,
@@ -52,7 +117,7 @@ const PredictionController = {
           prediction_value: string;
         })[]
     >(
-      findUnSubmitted(
+      findUnsubmitted(
         `
           SELECT
             P.*,
@@ -100,7 +165,7 @@ const PredictionController = {
           prediction_value: string;
         })[]
     >(
-      findUnSubmitted(
+      findUnsubmitted(
         `
           SELECT 
             P.*,
@@ -312,7 +377,7 @@ const PredictionController = {
         FROM prediction P
         JOIN ?? I
         ON P.prediction_info_id = I.info_id
-        WHERE result_value IS NULL AND TIMEDIFF(now(), result_date) >= '24:00:00'
+        WHERE result_value IS NULL AND TIMESTAMPDIFF(HOUR, result_date, NOW()) >= 24
         LIMIT 10;
       `,
       [category]
