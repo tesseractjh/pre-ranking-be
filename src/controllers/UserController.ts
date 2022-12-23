@@ -110,6 +110,14 @@ const UserController = {
       `,
       [...columnEntries.flat(), userId]
     );
+  },
+
+  async findUserCount() {
+    const user = await DB.query<{ total_count: number }[]>(`
+      SELECT COUNT(*) AS total_count
+      FROM user;
+    `);
+    return user?.[0].total_count;
   }
 };
 

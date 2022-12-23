@@ -12,16 +12,22 @@ declare namespace Model {
     created_time: Date;
   }
 
-  interface Rank {
+  interface PredictionCount {
+    total_count: number;
+    right_count: number;
+  }
+
+  interface UserRank {
     user_id: number;
     score: number;
     ranking: number;
     total_count: number;
   }
 
-  interface PredictionCount {
-    total_count: number;
-    right_count: number;
+  interface Rank extends PredictionCount {
+    user_name: string;
+    score: number;
+    ranking: number;
   }
 
   interface Notification {
