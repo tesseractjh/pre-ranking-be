@@ -1,6 +1,9 @@
+import dotenv from 'dotenv';
 import { CLOSED_DAYS, NEXT_DATE_RATIO } from '../constants';
 import random from './random';
 
+dotenv.config();
+const NOON = Number(process.env.NOON);
 const DAY = 24 * 60 * 60 * 1000;
 
 const stockDate = {
@@ -35,9 +38,9 @@ const stockDate = {
       today.setTime(today.getTime() - 2 * DAY);
     } else if (day === 6) {
       today.setTime(today.getTime() - DAY);
-    } else if (day === 1 && hour < 12) {
+    } else if (day === 1 && hour < NOON) {
       today.setTime(today.getTime() - 3 * DAY);
-    } else if (hour < 12) {
+    } else if (hour < NOON) {
       today.setTime(today.getTime() - DAY);
     }
 
