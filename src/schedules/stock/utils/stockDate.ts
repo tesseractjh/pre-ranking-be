@@ -90,7 +90,10 @@ const stockDate = {
       }
     }
 
-    return `${this.formatDateWithHyphen(date)} 12:00:00`;
+    return `${this.formatDateWithHyphen(date)} ${String(NOON).padStart(
+      2,
+      '0'
+    )}:00:00`;
   },
 
   getDateDiff(prevDate: Date | string, curDate: Date | string) {
