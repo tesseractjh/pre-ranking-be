@@ -111,11 +111,10 @@ const PredictionController = {
     unsubmitted: boolean
   ) {
     const predictions = await DB.query<
-      (Model.Prediction &
-        Model.StockFluctuation & {
-          participant_count: number;
-          prediction_value: string;
-        })[]
+      (Model.Prediction & {
+        participant_count: number;
+        prediction_value: string;
+      })[]
     >(
       findUnsubmitted(
         `
@@ -167,37 +166,68 @@ const PredictionController = {
     >(
       findUnsubmitted(
         `
-          SELECT 
-            P.*,
-            ISF.stock_name,
-            ISF.last_price,
-            ISF.last_date,
-            ISF.short_code,
-            ISF.market_category,
-            ISF.vs,
-            ISF.fluctuation_rate,
-            (
-              SELECT COUNT(*)
-              FROM user_prediction U
-              WHERE U.prediction_id = P.prediction_id
-            ) AS participant_count,
-            (
-              SELECT prediction_value
-              FROM user_prediction U
-              WHERE U.user_id = ? AND U.prediction_id = P.prediction_id
-            ) AS prediction_value
-          FROM prediction P
-          JOIN info_stock_fluctuation ISF
-          ON P.prediction_info_id = ISF.info_id
-          WHERE prediction_id < ?
+          SELECT *
+          FROM (
+            SELECT 
+              P.*,
+              ISF.stock_name,
+              ISF.last_price,
+              ISF.last_date,
+              ISF.short_code,
+              ISF.market_category,
+              ISF.vs,
+              ISF.fluctuation_rate,
+              (
+                SELECT COUNT(*)
+                FROM user_prediction U
+                WHERE U.prediction_id = P.prediction_id
+              ) AS participant_count,
+              (
+                SELECT prediction_value
+                FROM user_prediction U
+                WHERE U.user_id = ? AND U.prediction_id = P.prediction_id
+              ) AS prediction_value
+            FROM prediction P
+            JOIN info_stock_fluctuation ISF
+            ON P.prediction_info_id = ISF.info_id
+            WHERE prediction_category = 'info_stock_fluctuation' AND prediction_id < ?
+            UNION ALL
+            SELECT 
+              P.*,
+              ISP.stock_name,
+              ISP.last_price,
+              ISP.last_date,
+              ISP.short_code,
+              ISP.market_category,
+              ISP.vs,
+              ISP.fluctuation_rate,
+              (
+                SELECT COUNT(*)
+                FROM user_prediction U
+                WHERE U.prediction_id = P.prediction_id
+              ) AS participant_count,
+              (
+                SELECT prediction_value
+                FROM user_prediction U
+                WHERE U.user_id = ? AND U.prediction_id = P.prediction_id
+              ) AS prediction_value
+            FROM prediction P
+            JOIN info_stock_price ISP
+            ON P.prediction_info_id = ISP.info_id
+            WHERE prediction_category = 'info_stock_price' AND prediction_id < ?
+          ) P
           ORDER BY created_at DESC
           LIMIT 10;
         `,
         unsubmitted
       ),
-      [userId, predictionId || MAX_INT_VALUE]
+      [
+        userId,
+        predictionId || MAX_INT_VALUE,
+        userId,
+        predictionId || MAX_INT_VALUE
+      ]
     );
-    // TODO: 전체 예측 페이지에서는 prediction을 모든 예측 info 테이블과 join 후 union해서 가져와야 할 것 같음(또는 case문으로  join?)
 
     return predictions;
   },

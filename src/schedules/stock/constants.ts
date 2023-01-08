@@ -24,5 +24,12 @@ export const REWARDS = {
     coin: 12,
     reward: 5,
     penalty: -1
+  },
+  stock_price: {
+    coin: 75,
+    bonusCoin: 125,
+    reward: 20,
+    bonusReward: 80,
+    penalty: -1
   }
 };

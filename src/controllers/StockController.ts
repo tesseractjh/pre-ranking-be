@@ -30,19 +30,13 @@ const StockController = {
     return data;
   },
 
-  async createStockFluctuationInfo({
-    basDt,
-    isinCd,
-    srtnCd,
-    clpr,
-    fltRt,
-    itmsNm,
-    mrktCtg,
-    vs
-  }: StockInfo) {
+  async createStockInfo(
+    category: string,
+    { basDt, isinCd, srtnCd, clpr, fltRt, itmsNm, mrktCtg, vs }: StockInfo
+  ) {
     const result = await DB.query(
       `
-        INSERT INTO info_stock_fluctuation (
+        INSERT INTO info_${category} (
           stock_name,
           last_price,
           last_date,
@@ -61,28 +55,39 @@ const StockController = {
     return result?.insertId;
   },
 
-  async confirmStockFluctuation({
-    predictionId,
-    infoId,
-    stockName,
-    coinReward,
-    scoreReward,
-    scorePanelty,
-    resultValue,
-    resultPrice
-  }: {
-    predictionId: number;
-    infoId: number;
-    stockName: string;
-    scoreReward: number;
-    scorePanelty: number;
-    coinReward: number;
-    resultValue: string;
-    resultPrice: number;
-  }) {
+  async confirmStockInfo(
+    category: string,
+    {
+      predictionId,
+      infoId,
+      stockName,
+      coinReward,
+      scoreReward,
+      scorePanelty,
+      resultValue,
+      resultPrice,
+      coinMultiple = 1,
+      scoreMultiple = 1,
+      bonusCoinReward = 0,
+      bonusScoreReward = 0
+    }: {
+      predictionId: number;
+      infoId: number;
+      stockName: string;
+      scoreReward: number;
+      scorePanelty: number;
+      coinReward: number;
+      resultValue: string;
+      resultPrice: number;
+      coinMultiple?: number;
+      scoreMultiple?: number;
+      bonusCoinReward?: number;
+      bonusScoreReward?: number;
+    }
+  ) {
     const result = await DB.query(
       `
-        CALL confirm_stock_fluctuation_result(?, ?, ?, ?, ?, ?, ?, ?);
+        CALL confirm_${category}_result(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
       `,
       [
         predictionId,
@@ -92,7 +97,11 @@ const StockController = {
         scoreReward,
         scorePanelty,
         resultValue,
-        resultPrice
+        resultPrice,
+        coinMultiple,
+        scoreMultiple,
+        bonusCoinReward,
+        bonusScoreReward
       ]
     );
 
