@@ -151,6 +151,7 @@ const RankController = {
           GROUP BY U.user_id
         ) U
         ON R.user_id = U.user_id
+        ORDER BY ranking
         LIMIT ?, 20;
       `,
       [category, (page - 1) * 20]

@@ -10,13 +10,16 @@ import stockDate from '@schedules/stock/utils/stockDate';
 const PREDICTION_PERIOD = 24 * 60 * 60 * 1000;
 
 const COIN_REQUIREMENTS: Record<string, number> = {
-  stock_fluctuation: 10
+  stock_fluctuation: 10,
+  stock_price: 50
 };
 
 const validatePredicitonValue = (category: string, value: string) => {
   switch (category) {
     case 'stock_fluctuation':
       return value === '0' || value === '1';
+    case 'stock_price':
+      return Number.isInteger(Number(value)) && Number(value) >= 0;
     default:
       return false;
   }
