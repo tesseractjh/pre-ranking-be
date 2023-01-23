@@ -146,15 +146,18 @@ const RankController = {
             U.*,
             COUNT(CASE WHEN prediction_result = 1 THEN 1 END) AS right_count
           FROM user U
-          JOIN user_prediction P
-          ON U.user_id = P.user_id
+          JOIN user_prediction UP
+          ON U.user_id = UP.user_id
+          JOIN prediction P
+          ON UP.prediction_id = P.prediction_id
+          WHERE P.prediction_category = ?
           GROUP BY U.user_id
         ) U
         ON R.user_id = U.user_id
         ORDER BY ranking
         LIMIT ?, 20;
       `,
-      [category, (page - 1) * 20]
+      [`user_${category}`, `info_${category}`, (page - 1) * 20]
     );
     return ranks;
   }

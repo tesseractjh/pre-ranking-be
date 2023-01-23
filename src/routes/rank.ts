@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
     category === 'all'
       ? await RankController.findAllTotalScoreRanks(Number(page))
       : await RankController.findAllScoreRanks(
-          `user_${category}`,
+          String(category),
           Number(page)
         );
 
